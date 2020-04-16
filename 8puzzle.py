@@ -83,8 +83,8 @@ def generateNewState(tablero):
 tablero = [[None]*3 for i in range(3)]
 llenarTab(tablero)
 
-Temp = 10000000
-Speed = 0.03
+Temp = 10000
+Speed = 0.0003
 Current = copy.deepcopy(tablero)
 Best = copy.deepcopy(tablero)
 New = copy.deepcopy(tablero)
@@ -96,7 +96,7 @@ print(Current)
 print(Best)
 print(New)
 
-while BestEnergy > 0:
+while Temp > 1:
     New = generateNewState(Current)
     CurrentEnergy = Manhattan(Current)
     NewEnergy = Manhattan(New)
@@ -108,7 +108,7 @@ while BestEnergy > 0:
         expo = -((CurrentEnergy-NewEnergy) / Temp)
         if expo <= 230:
             Prob = math.exp(expo)
-        else: Prob = 0.30
+        else: Prob = 0.35
     if Prob > rn.random():
         Current = copy.deepcopy(New)
         CurrentEnergy = NewEnergy
@@ -125,6 +125,7 @@ while BestEnergy > 0:
     print(Current)
     print(Best)
     print(New)
-    print(BestEnergy)
+    print('Energia minima: %i' %BestEnergy)
+    print('Temperatura: %i' %Temp)
 
 print('------------END------------')
