@@ -10,10 +10,13 @@ Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 
 class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
+        
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
+        self.dates()
         self.btnEmp.clicked.connect(self.calcular)
+        
     
     def veri(self, tablero, numEsp):
         for i in range(3):
@@ -120,58 +123,66 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.txt7_3.setText(str(tablero[2][0]))
         self.txt8_3.setText(str(tablero[2][1]))
         self.txt9_3.setText(str(tablero[2][2]))
+        
+    def dates(self):
+        self.tablero = [[None]*3 for i in range(3)]
+        self.llenarTab(self.tablero)
+        
+        self.Temp = 10000
+        self.Speed = 0.005
+        self.Current = copy.deepcopy(self.tablero)
+        self.Best = copy.deepcopy(self.tablero)
+        self.New = copy.deepcopy(self.tablero)
 
+        self.CurrentEnergy = self.Manhattan(self.Current)
+        self.BestEnergy = self.CurrentEnergy
+
+        self.llenarCurrent(self.Current)
+        self.llenarBest(self.Best)
+        self.llenarNew(self.New)
+        self.energy.setText(str(self.BestEnergy))
+        self.temperatura.setText(str(int(self.Temp)))
+    
     def calcular(self):
-        tablero = [[None]*3 for i in range(3)]
-        self.llenarTab(tablero)
+        
+        self.dates()
 
-        Temp = 10000
-        Speed = 0.005
-        Current = copy.deepcopy(tablero)
-        Best = copy.deepcopy(tablero)
-        New = copy.deepcopy(tablero)
-
-        CurrentEnergy = self.Manhattan(Current)
-        BestEnergy = CurrentEnergy
-
-        self.llenarCurrent(Current)
-        self.llenarBest(Best)
-        self.llenarNew(New)
-
-        while Temp > 1:
-            New = self.generateNewState(Current)
-            CurrentEnergy = self.Manhattan(Current)
-            NewEnergy = self.Manhattan(New)
+        while self.Temp > 1:
+            self.New = self.generateNewState(self.Current)
+            self.CurrentEnergy = self.Manhattan(self.Current)
+            self.NewEnergy = self.Manhattan(self.New)
 
             #Funcion Aceptacion
-            if NewEnergy < CurrentEnergy:
+            if self.NewEnergy < self.CurrentEnergy:
                 Prob = 1
             else:
-                expo = -((CurrentEnergy-NewEnergy) / Temp)
+                expo = -((self.CurrentEnergy-self.NewEnergy) / self.Temp)
                 if expo <= 230:
                     Prob = math.exp(expo)
                 else: Prob = 0.35
             if Prob > rn.random():
-                Current = copy.deepcopy(New)
-                CurrentEnergy = NewEnergy
+                self.Current = copy.deepcopy(self.New)
+                self.CurrentEnergy = self.NewEnergy
 
             #Actualizacion temp y mejor solucion
-            if CurrentEnergy < BestEnergy:
-                BestEnergy = CurrentEnergy
-                Best = copy.deepcopy(Current)
+            if self.CurrentEnergy < self.BestEnergy:
+                self.BestEnergy = self.CurrentEnergy
+                self.Best = copy.deepcopy(self.Current)
 
-            Temp = (1 - Speed) * Temp
+            self.Temp = (1 - self.Speed) * self.Temp
 
-            self.llenarCurrent(Current)
-            print(Current)
-            self.llenarBest(Best)
-            print(Best)
-            self.llenarNew(New)
-            print(New)
+            self.llenarCurrent(self.Current)
+            print(self.Current)
+            self.llenarBest(self.Best)
+            print(self.Best)
+            self.llenarNew(self.New)
+            print(self.New)
+            print("Energy: ", self.BestEnergy)
+            print("Temp: ", int(self.Temp))
             print('-----------------------')
 
-            self.energy.setText(str(BestEnergy))
-            self.temperatura.setText(str(int(Temp)))
+            self.energy.setText(str(self.BestEnergy))
+            self.temperatura.setText(str(int(self.Temp)))
 
         
 if __name__ == "__main__":
